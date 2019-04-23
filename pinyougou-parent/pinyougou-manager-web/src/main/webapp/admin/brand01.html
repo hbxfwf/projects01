@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>品牌管理</title>
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <link rel="stylesheet" href="../plugins/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../plugins/adminLTE/css/AdminLTE.css">
+    <link rel="stylesheet" href="../plugins/adminLTE/css/skins/_all-skins.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+	<script src="../plugins/jQuery/jquery-2.2.3.min.js"></script>
+    <script src="../plugins/bootstrap/js/bootstrap.min.js"></script>
+	<!--1.添加angularjs的库-->
+	<script src="../plugins/angularjs/angular.min.js"></script>
+    <!--2.添加关于分页的样式和类-->
+    <link rel="stylesheet" href="../plugins/angularjs/pagination.css">
+    <script src="../plugins/angularjs/pagination.js"></script>
+	<!--3.添加angularjs的控制器-->
+	<script>
+		//3.1)定义模块myApp
+		var app = angular.module("myApp",['pagination']);
+		//3.2)定义控制器
+		app.controller("brandController",function ($scope,$http) {
+		    //这里定义关于分页的配置：
+            $scope.paginationConf = {
+                currentPage : 1,					//当前页
+                totalItems : 10,					//总记录数
+                itemsPerPage : 5,					//每页的记录数
+                perPageOptions: [10, 20, 30, 40, 50],  //分页选项
+                onChange : function(){				//此函数触发时机：①窗体加载完毕 ②点击上下页按钮时
+                    //1.查询所有品牌带分页
+                    //$scope.findByPage($scope.paginationConf.currentPage,$scope.paginationConf.itemsPerPage);
+                    //2.条件查询带有分页功能
+                    $scope.search();
+                }
+            }
+            //这里定义要删除的品牌id列表
+            $scope.brandIds = [];
+			//2.3)下面都是根据业务需求来定义自己的方法
+			//① 查询所有的品牌(不带分页)
+			$scope.findAll= ()=>{
+				$http.get("../brand/list.do").success(response=>{
+				    $scope.list = response;
+                })
+			}
+			//② 查询所有的商品（带有分页功能）
+            $scope.findByPage= (page,pagesize)=>{
+                $http.get("../brand/findByPage.do?page="+page+"&pagesize="+pagesize).success(response=>{
+                    //查询出数据后，要做两件事情：
+                    //第一件事情：取得分页的数据
+                    $scope.list = response.rows;
+                    //第二件事情：对分页选项中的所有的记录数赋值
+                    $scope.paginationConf.totalItems = response.total;
+                })
+            }
+            //③ 查询商品（条件查询+分页功能）
+            $scope.search = ()=>{
+                var page = $scope.paginationConf.currentPage;       //代表当前页
+                var pagesize = $scope.paginationConf.itemsPerPage;  //代表每页大小
+                $http.post("../brand/search.do?page="+page+"&pagesize="+pagesize, $scope.searchEntity).success(response=>{
+                    //查询出数据后，要做两件事情：
+                    //第一件事情：取得分页的数据
+                    $scope.list = response.rows;
+                    //第二件事情：对分页选项中的所有的记录数赋值
+                    $scope.paginationConf.totalItems = response.total;
+                })
+            }
+            //④ 保存商品（添加/修改）
+            $scope.save =()=>{
+                //1.区分是添加还是修改，使用$scope.entity.id是否有值
+                var url = "../brand/add.do";
+                if ($scope.entity.id){
+                    url = "../brand/update.do"
+                }
+                //2.根据上面的url地址来执行不同的操作
+                $http.post(url,$scope.entity).success(response =>{
+                    if (response.success){      //保存成功
+                        $scope.search();        //刷新列表
+                    } else{
+                        alert(response.message);
+                    }
+                } )
+            }
+            //⑤ 显示修改页面中的数据
+            $scope.update = (brand)=>{
+                $scope.entity = brand;
+            }
+            //⑥ 当我们选择要删除的某个商品时
+            $scope.userSelect = (event,brandId)=>{
+			    if (event.target.checked){  //如果是复选状态，就将当前id值设置给$scope.brandIds变量，event.target:代表我们点击的哪个复选框控件
+                    $scope.brandIds.push(brandId);
+                    //也可写出如下形式:
+                    //$scope.brandIds[$scope.brandIds.length] = brandId;
+                } else{                    //如果没有被复选就从数组中删除它
+			        //1.根据当前要删除的品牌的id找到其在数组中的下标
+			        var index = $scope.brandIds.indexOf(brandId);
+			        //2.从数组中删除指定的id
+                    $scope.brandIds.splice(index,1);   //参数1:代表要删除的元素在数组中的索引 参数2：代表要删除的元素个数
+                }
+            }
+            //⑦ 删除指定元素
+            $scope.delete = ()=>{
+			    $http.get("../brand/delete.do?ids="+$scope.brandIds).success(response=>{
+                    if (response.success){      //删除成功
+                        $scope.search();        //刷新列表
+                    } else{
+                        alert(response.message);
+                    }
+                })
+            }
+		})
+
+	</script>
+</head>
+<body class="hold-transition skin-red sidebar-mini" ng-app="myApp" ng-controller="brandController" ng-init="findAll()">
+{{brandIds}}
+  <!-- .box-body -->
+                    <div class="box-header with-border">
+                        <h3 class="box-title">品牌管理</h3>
+                    </div>
+
+                    <div class="box-body">
+
+                        <!-- 数据表格 -->
+                        <div class="table-box">
+
+                            <!--工具栏-->
+                            <div class="pull-left">
+                                <div class="form-group form-inline">
+                                    <div class="btn-group">
+                                        <button type="button"  class="btn btn-default" title="新建" ng-click="entity={}" data-toggle="modal" data-target="#editModal" ><i class="fa fa-file-o"></i> 新建</button>
+                                        <button type="button" ng-click="delete()" class="btn btn-default" title="删除" ><i class="fa fa-trash-o"></i> 删除</button>
+                                        <button type="button" class="btn btn-default" title="刷新" onclick="window.location.reload();"><i class="fa fa-refresh"></i> 刷新</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="box-tools pull-right">
+                                <div class="has-feedback form-inline ">
+							            <!--定义条件查询-->
+                                    <input type="text" ng-model="searchEntity.name" placeholder="品牌名称" class="form-control">
+                                    <input type="text" ng-model="searchEntity.firstChar" placeholder="首字母"  class="form-control">
+                                    <input type="button" value="查询" class="btn btn-default btn-sm" ng-click="search()">
+                                </div>
+                            </div>
+                            <!--工具栏/-->
+
+			                  <!--数据列表-->
+			                  <table id="dataList" class="table table-bordered table-striped table-hover dataTable">
+			                      <thead>
+			                          <tr>
+			                              <th class="" style="padding-right:0px">
+			                                  <input id="selall" type="checkbox" class="icheckbox_square-blue">
+			                              </th> 
+										  <th class="sorting_asc">品牌ID</th>
+									      <th class="sorting">品牌名称</th>									      
+									      <th class="sorting">品牌首字母</th>									     				
+					                      <th class="text-center">操作</th>
+			                          </tr>
+			                      </thead>
+			                      <tbody>
+			                          <tr ng-repeat="brand in list">
+			                              <!--<td><input  type="checkbox" ng-click="userSelect($event,brand.id)"></td>-->
+			                              <td><input  type="checkbox" ng-model="brandIds[$index]" ng-true-value="{{brand.id}}" ></td>
+				                          <td>{{brand.id}}</td>
+									      <td>{{brand.name}}</td>
+		                                  <td>{{brand.firstChar}}</td>
+		                                  <td class="text-center">                                           
+		                                 	  <button type="button" class="btn bg-olive btn-xs" data-toggle="modal" data-target="#editModal"  ng-click="update(brand)">修改</button>
+		                                  </td>
+			                          </tr>
+
+			                      </tbody>
+			                  </table>
+			                  <!--数据列表/-->
+                            <!-- 定义分页导航 -->
+                            <tm-pagination conf="paginationConf"></tm-pagination>
+							 
+                        </div>
+                        <!-- 数据表格 /-->
+                        
+                        
+                        
+                        
+                     </div>
+                    <!-- /.box-body -->
+         
+<!-- 编辑窗口 -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog" >
+	<div class="modal-content">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			<h3 id="myModalLabel">品牌编辑</h3>
+		</div>
+		<div class="modal-body">		
+			<table class="table table-bordered table-striped"  width="800px">
+		      	<tr>
+		      		<td>品牌名称</td>
+		      		<td><input  class="form-control" placeholder="品牌名称" ng-model="entity.name">  </td>
+		      	</tr>		      	
+		      	<tr>
+		      		<td>首字母</td>
+		      		<td><input  class="form-control" placeholder="首字母" ng-model="entity.firstChar">  </td>
+		      	</tr>		      	
+			 </table>				
+		</div>
+		<div class="modal-footer">						
+			<button class="btn btn-success" data-dismiss="modal" aria-hidden="true" ng-click="save()">保存</button>
+			<button class="btn btn-default" data-dismiss="modal" aria-hidden="true">关闭</button>
+		</div>
+	  </div>
+	</div>
+</div>
+   
+</body>
+</html>
