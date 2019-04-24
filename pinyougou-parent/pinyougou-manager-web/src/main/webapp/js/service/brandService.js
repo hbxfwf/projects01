@@ -1,22 +1,36 @@
-var brandService=app.service("brandService",function ($http) {
-    //1.查询所有
-    this.findAll = ()=>{
-        return $http.get("../brand/list.do");
-    }
-    //2.分页查询
-    this.findByPage = (page,pagesize)=>{
-        return $http.get("../brand/findByPage.do?page="+page+"&pagesize="+pagesize);
-    }
-    //3.分页带条件查询
-    this.search = (page,pagesize,entity)=>{
-        return $http.post("../brand/search.do?page="+page+"&pagesize="+pagesize, entity);
-    }
-    //4.保存商品
-    this.save = (url,entity)=>{
-        return $http.post(url,entity);
-    }
-    //5.根据id删除品牌
-    this.delete = (brandIds)=>{
-        return $http.get("../brand/delete.do?ids="+brandIds);
-    }
-})
+//服务层
+app.service('brandService',function($http){
+	    	
+	//读取列表数据绑定到表单中
+	this.findAll=function(){
+		return $http.get('../brand/findAll.do');		
+	}
+	//分页 
+	this.findPage=function(page,rows){
+		return $http.get('../brand/findPage.do?page='+page+'&rows='+rows);
+	}
+	//查询实体
+	this.findOne=function(id){
+		return $http.get('../brand/findOne.do?id='+id);
+	}
+	//增加 
+	this.add=function(entity){
+		return  $http.post('../brand/add.do',entity );
+	}
+	//修改 
+	this.update=function(entity){
+		return  $http.post('../brand/update.do',entity );
+	}
+	//删除
+	this.dele=function(ids){
+		return $http.get('../brand/delete.do?ids='+ids);
+	}
+	//搜索
+	this.search=function(page,rows,searchEntity){
+		return $http.post('../brand/search.do?page='+page+"&rows="+rows, searchEntity);
+	}
+	//查询所有的品牌列表（返回List<Map>）
+	this.selectBrandList = function () {
+		return $http.get("../brand/selectBrandList.do");
+	}
+});

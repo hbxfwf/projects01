@@ -97,6 +97,7 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.pinyougou.pojo.TbSpecification" >
+  <!--  此方法的作用就是在添加完一个规格后，为其对应的实体类的id（主键）赋值-->
     <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
       SELECT LAST_INSERT_ID() AS id
     </selectKey>

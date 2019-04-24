@@ -1,114 +1,119 @@
 package com.pinyougou.manager.controller;
+import java.util.List;
+import java.util.Map;
 
-import com.alibaba.dubbo.config.annotation.Reference;
-import com.pinyougou.pojo.PageResult;
-import com.pinyougou.pojo.Result;
-import com.pinyougou.pojo.TbBrand;
-import com.pinyougou.sellergoods.service.BrandService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.alibaba.dubbo.config.annotation.Reference;
+import com.pinyougou.pojo.TbBrand;
+import com.pinyougou.sellergoods.service.BrandService;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.pinyougou.pojo.PageResult;
+import com.pinyougou.pojo.Result;
 /**
- * @Author: Feng.Wang
- * @Company: Zelin.ShenZhen
- * @Description:
- * @Date: Create in 2019/4/22 11:43
+ * controller
+ * @author Administrator
+ *
  */
 @RestController
 @RequestMapping("/brand")
 public class BrandController {
-    @Reference(timeout = 50000) //timeout:设置访问服务的超时时间
-    private BrandService brandService;
 
-    /**
-     * 查询所有的品牌（不带分页）
-     * @return
-     */
-    @RequestMapping("/list")
-    public List<TbBrand> findAll(){
-        return brandService.findAll();
-    }
+	@Reference
+	private BrandService brandService;
+	
+	/**
+	 * 返回全部列表
+	 * @return
+	 */
+	@RequestMapping("/findAll")
+	public List<TbBrand> findAll(){			
+		return brandService.findAll();
+	}
+	
+	
+	/**
+	 * 返回全部列表
+	 * @return
+	 */
+	@RequestMapping("/findPage")
+	public PageResult  findPage(int page,int rows){			
+		return brandService.findPage(page, rows);
+	}
+	
+	/**
+	 * 增加
+	 * @param brand
+	 * @return
+	 */
+	@RequestMapping("/add")
+	public Result add(@RequestBody TbBrand brand){
+		try {
+			brandService.add(brand);
+			return new Result(true, "增加成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new Result(false, "增加失败");
+		}
+	}
+	
+	/**
+	 * 修改
+	 * @param brand
+	 * @return
+	 */
+	@RequestMapping("/update")
+	public Result update(@RequestBody TbBrand brand){
+		try {
+			brandService.update(brand);
+			return new Result(true, "修改成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new Result(false, "修改失败");
+		}
+	}	
+	
+	/**
+	 * 获取实体
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping("/findOne")
+	public TbBrand findOne(Long id){
+		return brandService.findOne(id);		
+	}
+	
+	/**
+	 * 批量删除
+	 * @param ids
+	 * @return
+	 */
+	@RequestMapping("/delete")
+	public Result delete(Long [] ids){
+		try {
+			brandService.delete(ids);
+			return new Result(true, "删除成功"); 
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new Result(false, "删除失败");
+		}
+	}
+	
+		/**
+	 * 查询+分页
+	 * @param brand
+	 * @param page
+	 * @param rows
+	 * @return
+	 */
+	@RequestMapping("/search")
+	public PageResult search(@RequestBody TbBrand brand, int page, int rows  ){
+		return brandService.findPage(brand, page, rows);		
+	}
 
-    /**
-     * 查询所有的品牌（带有分页功能）
-     * @param page
-     * @param pagesize
-     * @return
-     */
-    @RequestMapping("/findByPage")
-    public PageResult findByPage(int page,int pagesize){
-        return brandService.findByPage(page,pagesize);
-    }
-
-    /**
-     * 关于两个注解:@RequestBody与@ResponseBody的区别：
-     * @RequestBody:代表将前台传来的 json串转换为java对象
-     * @ResponseBody:代表将后台的java对象转换为json串并发送到前端
-     * @param page
-     * @param pagesize
-     * @param brand
-     * @return
-     */
-    @RequestMapping("/search")
-    public PageResult search(int page,int pagesize,@RequestBody(required = false) TbBrand brand){
-        return brandService.search(page,pagesize,brand);
-    }
-
-    /**
-     * 添加商品
-     * @param brand
-     * @return
-     */
-    @RequestMapping("/add")
-    public Result add(@RequestBody TbBrand brand){
-        try {
-            brandService.add(brand);
-            return new Result(true,"添加品牌成功！");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new Result(false,"添加品牌失败！");
-        }
-    }
-
-    /**
-     * 修改品牌
-     * @param brand
-     * @return
-     */
-    @RequestMapping("/update")
-    public Result update(@RequestBody TbBrand brand){
-        try {
-            brandService.update(brand);
-            return new Result(true,"修改品牌成功！");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new Result(false,"修改品牌失败！");
-        }
-    }
-
-    @RequestMapping("/delete")
-    public Result delete(String[] ids){
-        try {
-            brandService.delete(ids);
-//            List<String> newIds = new ArrayList<>();
-//            for (String id : ids) {
-//               if(id.matches("\\d+")){
-//                   newIds.add(id);
-//               }
-//            }
-//            brandService.delete(newIds.toArray(new String[newIds.size()]));
-//            System.out.println(newIds);
-            return new Result(true,"修改品牌成功！");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new Result(false,"修改品牌失败！");
-        }
-    }
-
+	@RequestMapping("/selectBrandList")
+	public List<Map> selectBrandList(){
+		return brandService.selectBrandList();
+	}
 }

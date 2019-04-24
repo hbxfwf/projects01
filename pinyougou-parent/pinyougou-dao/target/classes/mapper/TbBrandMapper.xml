@@ -6,7 +6,7 @@
     <result column="name" property="name" jdbcType="VARCHAR" />
     <result column="first_char" property="firstChar" jdbcType="VARCHAR" />
   </resultMap>
-  <select id="selectOptionList" resultType="map">
+  <select id="selectBrandList" resultType="map">
     select id,name as text from tb_brand;
   </select>
   <sql id="Example_Where_Clause" >
