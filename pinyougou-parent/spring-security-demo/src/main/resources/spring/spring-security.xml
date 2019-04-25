@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+			 http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+    <!--0.放行以下的页面,以下的页面不受springSecurity的管理-->
+    <http security="none" pattern="/login.html"/>
+    <http security="none" pattern="/login_error.html"/>
+
+    <!--1、 use-expressions="false",代表不使用spring的表达式spel(spring)-->
+    <http use-expressions="false">
+        <!--pattern="/**" ：代表拦截所有的请求，定义一个角色"ROLE_ADMIN"-->
+        <intercept-url pattern="/**" access="ROLE_ADMIN"/>
+        <!--1.1)利用springSecurity自己生成的登录页面进行登录-->
+        <!--<form-login/>-->
+        <!--1.2)自己定义的登录页面配置
+             login-page：代表登录页面
+             authentication-failure-url:代表登录失败后跳转的页面
+             default-target-url:登录成功后跳转的页面
+             always-use-default-target:代表登录成功后总是跳转到上面的登录页面
+        -->
+        <form-login login-page="/login.html" authentication-failure-url="/login_error.html"
+                    default-target-url="/index.html" always-use-default-target="true"/>
+        <csrf disabled="true"/>
+        <headers>
+
+        </headers>
+    </http>
+    <!--2.配置认证管理器-->
+    <authentication-manager>
+        <authentication-provider>
+            <user-service>
+                <!--2.1）定义一个用户，用户名为zhangsan,密码为123-->
+                <user name="zhangsan" authorities="ROLE_ADMIN" password="123"/>
+            </user-service>
+        </authentication-provider>
+    </authentication-manager>
+</beans:beans>

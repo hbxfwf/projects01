@@ -76,5 +76,19 @@ app.controller('sellerController' ,function($scope,$controller   ,sellerService)
 			}			
 		);
 	}
-    
+    //查看详情
+	$scope.findDetail=function (seller) {
+		$scope.entity = seller;
+	}
+	//修改商家的状态
+	$scope.updateStatus=function (sellerId,status) {
+		sellerService.updateStatus(sellerId, status).success(
+			function (response) {
+			if (response.success){
+				$scope.reloadList();
+			}else{
+				alert(response.message);
+			}
+		})
+	}
 });	

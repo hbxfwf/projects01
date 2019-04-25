@@ -1,0 +1,6 @@
+0:0:0:0:0:0:0:1 - - [25/Apr/2019:09:21:43 +0800] "GET /index.jsp HTTP/1.1" 302 - http-bio-9000-exec-1 233
+0:0:0:0:0:0:0:1 - - [25/Apr/2019:09:21:43 +0800] "GET /login.html HTTP/1.1" 304 - http-bio-9000-exec-3 16
+0:0:0:0:0:0:0:1 - - [25/Apr/2019:09:21:49 +0800] "POST /login HTTP/1.1" 302 - http-bio-9000-exec-4 17
+0:0:0:0:0:0:0:1 - - [25/Apr/2019:09:21:49 +0800] "GET /login_error.html HTTP/1.1" 304 - http-bio-9000-exec-5 4
+0:0:0:0:0:0:0:1 - - [25/Apr/2019:09:21:52 +0800] "POST /login HTTP/1.1" 302 - http-bio-9000-exec-6 11
+0:0:0:0:0:0:0:1 - - [25/Apr/2019:09:21:52 +0800] "GET /index.html HTTP/1.1" 200 147 http-bio-9000-exec-7 18

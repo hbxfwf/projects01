@@ -13,6 +13,7 @@
         <module name="pinyougou-sellergoods-interface" />
         <module name="pinyougou-sellergoods-service" />
         <module name="pinyougou-shop-web" />
+        <module name="spring-security-demo" />
       </profile>
     </annotationProcessing>
   </component>
