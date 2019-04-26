@@ -76,5 +76,38 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
 			}			
 		);
 	}
-    
+	//对所有的分类分级别
+	$scope.grade = 1;
+	//定义修改级别的方法
+	$scope.setGrade=function(value){
+		$scope.grade = value;
+	}
+	//点击某个分类按钮执行的事件处理函数
+	//$scope.entity:一级节点对应的实体
+	//$scope.entity_1:二级节点对应的实体
+	//$scope.entity_2:三级节点对应的实体
+
+	$scope.selectList=function(temp_entity){
+		if ($scope.grade == 1){ 		//代表一级节点（还未点击）
+			$scope.entity = temp_entity;
+			$scope.entity_1 = null;
+			$scope.entity_2 = null;
+		}else if ($scope.grade == 2) {	//代表二级节点时（点击的是一级节点）
+			$scope.entity_1 = temp_entity;
+			$scope.entity_2 = null;
+		}else if ($scope.grade == 3) {
+			$scope.entity_2 = temp_entity;
+		}
+		//$scope.catEntity.parentId = temp_entity.id;
+		//点击某个子点后，访问后台
+		$scope.findByParentId(temp_entity.id);
+	}
+
+    //根据父id查询分类列表
+	$scope.findByParentId=function (parentId) {
+		itemCatService.findByParentId(parentId).success(
+			function (response) {
+			$scope.list = response;
+		})
+	}
 });	

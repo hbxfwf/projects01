@@ -2,7 +2,10 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
        xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    <!--加载属性文件配置-->
+    <context:property-placeholder location="classpath*:properties/fastdfs.properties"/>
     <!--springmvc4.2以上版本配置fastjson-->
     <mvc:annotation-driven>
         <mvc:message-converters register-defaults="true">
@@ -40,7 +43,13 @@
             </bean>
         </property>
     </bean>
-
+    <!--配置文件上传-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--1.配置文件上传时的字符集编码-->
+        <property name="defaultEncoding" value="UTF-8"/>
+        <!--2.配置上传的文件大小(总大小)-->
+        <property name="maxUploadSize" value="5242880"/>
+    </bean>
     <!-- 引用dubbo 服务 -->
     <dubbo:application name="pinyougou-shop-web" />
     <dubbo:registry address="zookeeper://192.168.25.4:2181"/>
