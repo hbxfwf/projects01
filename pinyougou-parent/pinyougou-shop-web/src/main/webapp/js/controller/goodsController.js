@@ -1,5 +1,5 @@
  //控制层 
-app.controller('goodsController' ,function($scope,$controller   ,goodsService,uploadService){
+app.controller('goodsController' ,function($scope,$controller,typeTemplateService,itemCatService,goodsService,uploadService){
 	
 	$controller('baseController',{$scope:$scope});//继承
 	//定义文件上传方法
@@ -16,7 +16,7 @@ app.controller('goodsController' ,function($scope,$controller   ,goodsService,up
 		)
 	}
 	//初始化entity对象
-	$scope.entity={goods:{},goodsDesc:{itemImages:[]}};
+	$scope.entity={goods:{},goodsDesc:{itemImages:[],customAttributeItems:[],specificationItems:[]}};
 	//将刚上传的文件保存到文件列表中
 	$scope.addImagesList=function(){
 
@@ -101,5 +101,118 @@ app.controller('goodsController' ,function($scope,$controller   ,goodsService,up
 			}			
 		);
 	}
-    
+    //根据父id查询其子节点列表
+	$scope.findByParentId=function (parentId) {
+		itemCatService.findByParentId(parentId).success(
+			function (response) {
+				$scope.itemCatList = response;
+			}
+		)
+	}
+	//监控一级分类选项发生改变(自动填充二级分类)
+	$scope.$watch("entity.goods.category1Id",function (newValue,oldValue) {
+		itemCatService.findByParentId(newValue).success(
+			function (response) {
+				$scope.itemCat2List = response;
+			}
+		)
+	})
+	//监控二级分类选项发生改变(自动填充三级分类)
+	$scope.$watch("entity.goods.category2Id",function (newValue,oldValue) {
+		itemCatService.findByParentId(newValue).success(
+			function (response) {
+				$scope.itemCat3List = response;
+			}
+		)
+	})
+	//监控三级分类选项发生改变(自动填充商品的模板id)
+	$scope.$watch("entity.goods.category3Id",function (newValue,oldValue) {
+		//1.根据商品分类id在tb_itemcat表中查询出此分类关联的模板id
+		itemCatService.findOne(newValue).success(function (response) {
+			//1.1)取得模板对象的id
+			$scope.entity.goods.typeTemplateId=response.typeId;
+		})
+	})
+	/**
+	 * @Author: Feng.Wang
+	 * @Date: 2019/4/27 10:37
+	 * @Company: Zelin.ShenZhen
+	 * @ClassName:
+	 * @Description: 动态生成集合：$scope.entity.goodsDesc.specificationItems
+	 */
+	$scope.updateSpecAttribute=function (event,name,value) {
+		//1.在指定的集合中查询是否存在指定key和value的元素
+		let object = $scope.searchObjectByKey($scope.entity.goodsDesc.specificationItems,"attributeName",name);
+		//2.如果存在此对象，再根据是否复选来决定向attributeValue添加或删除指定的内容value
+		if (object != null){
+			if (event.target.checked){	//2.1)如果被复选，就向attributeValue中添加选中项value的值
+				object.attributeValue.push(value);
+			}else{						//2.2)如果未被复选，就从attributeValue中删除指定的value的值
+				object.attributeValue.splice(object.attributeValue.indexOf(value),1);
+				//2.3)如果当前的attribute没有值，则删除此对象
+				if (object.attributeValue.length == 0){
+					$scope.entity.goodsDesc.specificationItems.splice($scope.entity.goodsDesc.specificationItems.indexOf(object),1);
+				}
+			}
+		} else{
+			$scope.entity.goodsDesc.specificationItems.push({"attributeName":name,"attributeValue":[value]});
+		}
+	}
+	//生成sku列表（即设置tbItem表的数据，添加一条spu，有可能向sku中添加多条数据）
+	$scope.createItemList=function(){
+		//1.初始化$scope.entity.items
+		$scope.entity.items=[{spec:{},price:0,num:99999,status:'0',isDefault:'0' }];
+		//2.取得$scope.entity.goodsDesc.specificationItems的数据
+		var specificationItems = $scope.entity.goodsDesc.specificationItems;
+		//3.遍历其中的数据，并向$scope.entity.items中添加数据
+		for (var i=0,len=specificationItems.length;i<len;i++){
+			$scope.entity.items=addColumn($scope.entity.items,
+										specificationItems[i].attributeName,
+										specificationItems[i].attributeValue);
+		}
+	}
+	//动态数据到$scope.entity.items中
+	function addColumn(list,attributeName,attributeValue){
+		//1.定义一个新的集合
+		var newList = [];
+		//2.遍历集合，取得原始行，再利用对象的深克隆技术，得到新行，并向新行添加数据
+		for (var i=0;i<list.length;i++){
+			//2.1)得到旧行
+			var oldRow = list[i];
+			for (var j=0;j<attributeValue.length;j++){
+				//2.2)根据旧行克隆出新行
+				var newRow = JSON.parse(JSON.stringify(oldRow));  //对象的深克隆，原来的对象与新对象完全脱离关系
+				//2.3)向新行中添加数据
+				newRow.spec[attributeName] = attributeValue[j];
+				//2.4)将新行添加到newList集合中
+				newList.push(newRow);
+			}
+
+		}
+
+		return newList;
+	}
+	//监控模板id，此时得到模板关联的品牌列表
+	$scope.$watch("entity.goods.typeTemplateId",function(newValue,oldValue) {
+		typeTemplateService.findOne(newValue).success(
+			function (response) {
+				//第一件事情：显示此模板关联的品牌列表
+				//1.1)取得模板对象
+				$scope.typeTemplate = response;
+				//1.2)得到模板对象的关联品牌列表对象(将json串转换为对象)
+				$scope.typeTemplate.brandIds=JSON.parse($scope.typeTemplate.brandIds);
+				//第二件事情：就是显示关联的扩展属性
+				//$scope.typeTemplate.customAttributeItems=JSON.parse($scope.typeTemplate.customAttributeItems);
+				$scope.entity.goodsDesc.customAttributeItems=JSON.parse($scope.typeTemplate.customAttributeItems);
+
+			}
+		)
+		//第三件事情：就是根据模板id查询规格及规格选项列表
+		typeTemplateService.findSpecList(newValue).success(
+			function (response) {
+				$scope.specList = response;
+			}
+		)
+	})
+
 });	

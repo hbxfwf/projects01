@@ -44,4 +44,20 @@ app.controller('baseController' ,function($scope){
 		//3.返回拼接后的字符串
 		return info;
 	}
+	/**
+	 * @Author: Feng.Wang
+	 * @Date: 2019/4/27 10:35
+	 * @Company: Zelin.ShenZhen
+	 * @ClassName:
+	 * @Description: 在一个对象数组或对象集合中根据key和value，查找是否存在某个对象，如果存在就返回此对象，否则返回null
+	*/
+	$scope.searchObjectByKey=function (list,key,value) {
+		for (let i=0,len=list.length;i < len;i++){
+			if (list[i][key] == value){
+				return list[i];
+			}
+		}
+		return null;
+	}
+
 });	
