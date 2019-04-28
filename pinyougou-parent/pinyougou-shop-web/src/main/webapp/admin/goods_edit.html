@@ -36,7 +36,7 @@
 </head>
 
 <body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou"
-	  ng-controller="goodsController" ng-init="findByParentId(0)">
+	  ng-controller="goodsController" ng-init="findByParentId(0);findOne()">
 
             <!-- 正文区域 -->
             <section class="content">
@@ -209,7 +209,7 @@
 					                        <div class="col-md-10 data">
 					                               
 					                            <span ng-repeat="option in spec.options">
-					                            	<input  type="checkbox" ng-click="updateSpecAttribute($event,spec.text,option.optionName);createItemList()">{{option.optionName}}
+					                            	<input  type="checkbox" ng-checked="checkAttributeValue(spec.text,option.optionName)" ng-click="updateSpecAttribute($event,spec.text,option.optionName);createItemList()">{{option.optionName}}
 					                            </span>  	
 
 					                            	

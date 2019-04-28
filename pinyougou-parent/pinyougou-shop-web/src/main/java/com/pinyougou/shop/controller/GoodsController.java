@@ -66,12 +66,21 @@ public class GoodsController {
 	
 	/**
 	 * 修改
-	 * @param goods
+	 * @param goods 代表修改后的商品
 	 * @return
 	 */
 	@RequestMapping("/update")
-	public Result update(@RequestBody TbGoods goods){
+	public Result update(@RequestBody Goods goods){
 		try {
+			//1.得到登录的商家sellerId
+			String sellerId = SecurityContextHolder.getContext().getAuthentication().getName();
+			//2.查询出修改前的商品
+			Goods oldGoods = goodsService.findOne(goods.getGoods().getId());
+			//3.判断商品是否是同一个商家
+			if(!oldGoods.getGoods().getSellerId().equals(sellerId) ||
+			   !goods.getGoods().getSellerId().equals(sellerId)){
+				return new Result(false, "无权修改");
+			}
 			goodsService.update(goods);
 			return new Result(true, "修改成功");
 		} catch (Exception e) {
@@ -86,7 +95,7 @@ public class GoodsController {
 	 * @return
 	 */
 	@RequestMapping("/findOne")
-	public TbGoods findOne(Long id){
+	public Goods findOne(Long id){
 		return goodsService.findOne(id);		
 	}
 	

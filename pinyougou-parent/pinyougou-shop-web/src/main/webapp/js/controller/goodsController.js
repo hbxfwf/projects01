@@ -1,5 +1,5 @@
  //控制层 
-app.controller('goodsController' ,function($scope,$controller,typeTemplateService,itemCatService,goodsService,uploadService){
+app.controller('goodsController' ,function($scope,$controller,$location,typeTemplateService,itemCatService,goodsService,uploadService){
 	
 	$controller('baseController',{$scope:$scope});//继承
 	//定义文件上传方法
@@ -44,14 +44,42 @@ app.controller('goodsController' ,function($scope,$controller,typeTemplateServic
 		);
 	}
 	//查询实体 
-	$scope.findOne=function(id){				
+	$scope.findOne=function(){
+		//$location.search():是angularjs从上个页面取值的固定语法，而["id"]，代表传值时使用的参数
+		var id = $location.search()["id"];
+		if (!id ){
+			return ;
+		}
 		goodsService.findOne(id).success(
 			function(response){
-				$scope.entity= response;					
+
+				$scope.entity= response;
+				//对富文本编辑器赋值
+				editor.html($scope.entity.goodsDesc.introduction);
+				//处理图片
+				$scope.entity.goodsDesc.itemImages=JSON.parse($scope.entity.goodsDesc.itemImages);
+				//处理扩展属性
+				$scope.entity.goodsDesc.customAttributeItems=JSON.parse($scope.entity.goodsDesc.customAttributeItems);
+				//处理规格及规格选项
+				$scope.entity.goodsDesc.specificationItems=JSON.parse($scope.entity.goodsDesc.specificationItems);
+				//处理sku列表中的spec这个json串
+				var items = $scope.entity.items;
+				for (var i=0;i < items.length;i++){
+					items[i].spec = JSON.parse(items[i].spec);
+				}
 			}
 		);				
 	}
-	
+	//根据当前的商品id查询出商品信息，让其规格自动选择
+	$scope.checkAttributeValue=function(specName,optionName){
+		//1.得到规格选项列表
+		var specItems = $scope.entity.goodsDesc.specificationItems;
+		//根据规格名称，查询是否存在此规格对象
+		let object = $scope.searchObjectByKey(specItems,"attributeName",specName);
+		if (object){
+			return object.attributeValue.indexOf(optionName) >= 0;
+		}
+	}
 	//保存 
 	$scope.save=function(){				
 		var serviceObject;//服务层对象
@@ -91,7 +119,8 @@ app.controller('goodsController' ,function($scope,$controller,typeTemplateServic
 	}
 	
 	$scope.searchEntity={};//定义搜索对象 
-	
+	$scope.status=["未审核","己审核","审核未通过","己关闭"];
+
 	//搜索
 	$scope.search=function(page,rows){			
 		goodsService.search(page,rows,$scope.searchEntity).success(
@@ -100,6 +129,19 @@ app.controller('goodsController' ,function($scope,$controller,typeTemplateServic
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
 			}			
 		);
+	}
+	//定义所有的分类集合
+	$scope.itemCats = [];
+	//查询所有的分类
+	$scope.findItemCatList=function(){
+		itemCatService.findAll().success(
+			function (response) {
+				for (var i = 0; i <response.length;i++){
+					//以商品分类为key存到数组$scope.itemCats中，到时显示时就从这个数组中取值
+					$scope.itemCats[response[i].id] = response[i].name;
+				}
+			}
+		)
 	}
     //根据父id查询其子节点列表
 	$scope.findByParentId=function (parentId) {
@@ -203,7 +245,12 @@ app.controller('goodsController' ,function($scope,$controller,typeTemplateServic
 				$scope.typeTemplate.brandIds=JSON.parse($scope.typeTemplate.brandIds);
 				//第二件事情：就是显示关联的扩展属性
 				//$scope.typeTemplate.customAttributeItems=JSON.parse($scope.typeTemplate.customAttributeItems);
-				$scope.entity.goodsDesc.customAttributeItems=JSON.parse($scope.typeTemplate.customAttributeItems);
+				//判断是否是通过“修改”按钮过来的
+				var id = $location.search()["id"];
+				if (!id) {
+					$scope.entity.goodsDesc.customAttributeItems=JSON.parse($scope.typeTemplate.customAttributeItems);
+				}
+
 
 			}
 		)
