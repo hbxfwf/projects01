@@ -11,6 +11,7 @@ import com.pinyougou.pojo.TbItemCatExample.Criteria;
 import com.pinyougou.sellergoods.service.ItemCatService;
 
 import com.pinyougou.pojo.PageResult;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -24,7 +25,8 @@ public class ItemCatServiceImpl implements ItemCatService {
 
 	@Autowired
 	private TbItemCatMapper itemCatMapper;
-	
+	@Autowired
+	private RedisTemplate redisTemplate;
 	/**
 	 * 查询全部
 	 */
@@ -109,6 +111,11 @@ public class ItemCatServiceImpl implements ItemCatService {
 		criteria.andParentIdEqualTo(parentId);
 		//4.开始查询
 		List<TbItemCat> tbItemCats = itemCatMapper.selectByExample(example);
+
+		//5.将所有的分类放到redis中（小key:分类名称 值：typeId）
+		for (TbItemCat tbItemCat : findAll()) {
+			redisTemplate.boundHashOps("categoryLists").put(tbItemCat.getName(),tbItemCat.getTypeId());
+		}
 		return tbItemCats;
 	}
 
