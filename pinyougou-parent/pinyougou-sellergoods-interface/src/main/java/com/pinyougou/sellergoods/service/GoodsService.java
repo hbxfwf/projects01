@@ -5,6 +5,8 @@ import com.pinyougou.group.Goods;
 import com.pinyougou.pojo.TbGoods;
 
 import com.pinyougou.pojo.PageResult;
+import com.pinyougou.pojo.TbItem;
+
 /**
  * 服务层接口
  * @author Administrator
@@ -66,4 +68,14 @@ public interface GoodsService {
 	 * @param ids
 	 */
     void updateStatus(String status, Long[] ids);
+
+	/**
+	 * 根据商品ID和状态查询Item表信息
+	 * @param goodsIds
+	 * @param status
+	 * @return
+	 */
+	public List<TbItem> findItemListByGoodsIdandStatus(Long[] goodsIds, String status );
+
+
 }

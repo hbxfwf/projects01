@@ -7,6 +7,7 @@ import com.pinyougou.search.service.ItemSearchService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.query.*;
@@ -55,7 +56,11 @@ public class ItemSearchServiceImpl implements ItemSearchService {
 //        List<TbItem> itemList = pageItems.getContent();
 //        //5.4)将查询结果存放到maps集合中
 //        maps.put("rows",itemList);
-
+        Object keywords = searchMap.get("keywords");
+        //处理原始map数据中的空格
+        if(keywords != null){
+            searchMap.put("keywords",searchMap.get("keywords").toString().replace(" ",""));
+        }
         //1.高亮查询
         maps.putAll(searchList(searchMap));
         //2.分组查询
@@ -76,6 +81,27 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         }
         return maps;
     }
+    //导入到索引库
+    @Override
+    public void importList(List list) {
+        solrTemplate.saveBeans(list);
+        solrTemplate.commit();
+        System.out.println("导入到索引库成功！");
+    }
+
+    /**
+     * 根据商品id从索引库中删除商品
+     * @param goodsIds
+     */
+    @Override
+    public void deleteGoodsId(List goodsIds) {
+        //注意：这里不能根据id查询，因为这里的goodsid不是tbItem表的主键,只能使用条件查询去删除
+        SolrDataQuery query = new SimpleQuery();
+        query.addCriteria(new Criteria("item_goodsid").in(goodsIds));
+        solrTemplate.delete(query);
+        solrTemplate.commit();
+    }
+
     /**
      * 搜索条件查询
      * @param maps
@@ -91,7 +117,7 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         //1.1.2)将高亮查询与查询条件绑定
         query.addCriteria(criteria);
 
-        //下面开始过滤查询(分类、品牌、规格)
+        //下面开始过滤查询(分类、品牌、规格、价格区间、排序)
         //① 分类过滤查询
         String category = (String) maps.get("category");
         if(StringUtils.isNotEmpty(category)){
@@ -113,16 +139,58 @@ public class ItemSearchServiceImpl implements ItemSearchService {
                     query.addFilterQuery(specFilterQuery);
                 }
             }
-
         }
-
-
+        //④ 价格区间查询
+        String price = (String) maps.get("price");
+        if(StringUtils.isNotEmpty(price)){
+            //1.进行字符串的拆分（按照-号进行拆分）
+            String[] split = price.split("-");
+            //2.根据这个数组的第一个值是否是0确定查询起始范围
+            if(!split[0].equals("0")){
+                FilterQuery priceFilterQuery = new SimpleFilterQuery(new Criteria("item_price").greaterThanEqual(split[0]));
+                query.addFilterQuery(priceFilterQuery);
+            }
+            //0-500 1000-2000 3000-*
+            if(!split[1].equals("*")){
+                FilterQuery priceFilterQuery = new SimpleFilterQuery(new Criteria("item_price").lessThan(split[1]));
+                query.addFilterQuery(priceFilterQuery);
+            }
+        }
+        //⑤ 排序查询
+        String sortStr = (String) maps.get("sort");                //排序方向（升序还是降序）
+        String sortField = (String) maps.get("sortField");      //排序字段
+        Sort sort = null;
+        //构造排序对象
+        if(StringUtils.isNotEmpty(sortStr)){
+            if(sortStr.equals("ASC")){      //升序排序
+                sort = new Sort(Sort.Direction.ASC,"item_"+sortField);
+            }else if(sortStr.equals("DESC")){
+                sort = new Sort(Sort.Direction.DESC,"item_"+sortField);
+            }
+        }
+        //将排序对象添加到查询对象中
+        query.addSort(sort);
         //1.2)定义高亮查询的选项
         HighlightOptions options = new HighlightOptions().addField("item_title");
         options.setSimplePrefix("<span style='color:red'>");   //设置高亮选项的前缀
         options.setSimplePostfix("</span>");                   //设置高亮选项的后缀
         //1.3)将高亮选项与高亮查询对象绑定
         query.setHighlightOptions(options);
+        //分页查询
+        //1.处理分页数据
+        String pageStr = (String) maps.get("page");
+        String pagesizeStr = (String) maps.get("pagesize");
+        Integer page = 1;
+        Integer pagesize = 20;
+        if(StringUtils.isNotEmpty(pageStr)){
+            page = Integer.parseInt(pageStr);
+        }
+        if(StringUtils.isNotEmpty(pagesizeStr)){
+            pagesize = Integer.parseInt(pagesizeStr);
+        }
+        //2.定义分页选项
+        query.setOffset((page-1)*pagesize);
+        query.setRows(pagesize);
         //1.4)进行高亮查询,返回高亮页对象
         HighlightPage<TbItem> tbItems = solrTemplate.queryForHighlightPage(query, TbItem.class);
         //1.5)查询得到高亮的入口对象
@@ -142,7 +210,8 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         //1.7)将设置了高亮字段后的entity放到map集合中
         Map highlightMap = new HashMap();
         highlightMap.put("rows",tbItems.getContent());
-
+        highlightMap.put("total",tbItems.getTotalElements());
+        highlightMap.put("totalPage",tbItems.getTotalPages());
         return highlightMap;
     }
 

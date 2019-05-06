@@ -1,7 +1,10 @@
 package com.pinyougou.manager.controller;
+import java.util.Arrays;
 import java.util.List;
 
 import com.pinyougou.group.Goods;
+import com.pinyougou.pojo.TbItem;
+import com.pinyougou.search.service.ItemSearchService;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,7 +25,8 @@ public class GoodsController {
 
 	@Reference
 	private GoodsService goodsService;
-	
+	@Reference
+	private ItemSearchService searchService;
 	/**
 	 * 返回全部列表
 	 * @return
@@ -74,10 +78,24 @@ public class GoodsController {
 		}
 	}	
 	//修改状态
+	//审核商品通过后，更新索引库
 	@RequestMapping("/updateStatus")
 	public Result updateStatus(String status,Long[] ids){
 		try {
 			goodsService.updateStatus(status,ids);
+			if(status.equals("1")){		//代表审核通过
+				//审核通过后，根据商品id来查询商品列表
+				List<TbItem> tbItems = goodsService.findItemListByGoodsIdandStatus(ids, status);
+				System.out.println("tbItems:" + tbItems);
+				//将得到的列表导入到索引库中
+				if(tbItems.size() > 0){
+					searchService.importList(tbItems);
+				}else{
+					System.out.println("没有明细数据");
+				}
+
+			}
+
 			return new Result(true, "修改状态成功");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -103,6 +121,8 @@ public class GoodsController {
 	public Result delete(Long [] ids){
 		try {
 			goodsService.delete(ids);
+			//从索引库中删除商品
+			searchService.deleteGoodsId(Arrays.asList(ids));
 			return new Result(true, "删除成功"); 
 		} catch (Exception e) {
 			e.printStackTrace();

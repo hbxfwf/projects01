@@ -10,5 +10,8 @@ app.controller("contentController",function ($scope,$controller,contentService) 
                 $scope.contentList[categoryId]=response;
         })
     }
-
+    //2.向搜索页面传递数据
+    $scope.search=function () {
+        location.href = "http://localhost:9104/search.html#?keywords=" + $scope.keywords;
+    }
 })
