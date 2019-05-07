@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    <!--0.读取属性文件-->
+    <context:property-placeholder location="classpath*:properties/*.properties"/>
+    <!--1.下面的端口号代表此服务对外发布时使用的端口号，这样在zookeeper中才不会与其它服务冲突-->
+    <dubbo:protocol name="dubbo" port="20885"/>
+    <!--2.下面的地址端口代表，此服务访问zookeeper服务器时使用的端口-->
+    <dubbo:registry address="zookeeper://192.168.25.4:2181"/>
+    <!--3.指定应用程序服务的名称-->
+    <dubbo:application name="pinyougou-page-service"/>
+    <!--4.指定spring容器将要扫描的包，把这些包下的服务都放到zookeeper注册中心这个服务器上-->
+    <dubbo:annotation package="com.pinyougou.page.service"/>
+
+    <!--要使用freemarker并与spring整合，所以要配置FreeMarkerConfigurer对象-->
+    <bean id="freeMarkerConfigurer" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+        <!--配置模板文件字符集编码-->
+        <property name="defaultEncoding" value="UTF-8"/>
+        <!--配置模板文件的位置-->
+        <property name="templateLoaderPath" value="/WEB-INF/ftl"/>
+    </bean>
+</beans>

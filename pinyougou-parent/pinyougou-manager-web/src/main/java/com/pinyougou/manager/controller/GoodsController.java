@@ -3,6 +3,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.pinyougou.group.Goods;
+import com.pinyougou.page.service.ItemPageService;
 import com.pinyougou.pojo.TbItem;
 import com.pinyougou.search.service.ItemSearchService;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +28,8 @@ public class GoodsController {
 	private GoodsService goodsService;
 	@Reference
 	private ItemSearchService searchService;
+	@Reference
+	private ItemPageService pageService;
 	/**
 	 * 返回全部列表
 	 * @return
@@ -93,6 +96,10 @@ public class GoodsController {
 				}else{
 					System.out.println("没有明细数据");
 				}
+				//只要商品审核通过就可以生成静态页面
+				for (Long id : ids) {
+					genhtml(id);
+				}
 
 			}
 
@@ -140,5 +147,13 @@ public class GoodsController {
 	public PageResult search(@RequestBody TbGoods goods, int page, int rows  ){
 		return goodsService.findPage(goods, page, rows);		
 	}
-	
+
+	/**
+	 * 测试生成静态页面
+	 * @param goodsId
+	 */
+	@RequestMapping("/genhtml")
+	public void genhtml(Long goodsId){
+		pageService.genItemHtml(goodsId);
+	}
 }
