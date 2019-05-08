@@ -1,0 +1,16 @@
+0:0:0:0:0:0:0:1 - - [08/May/2019:11:44:55 +0800] "GET /admin/index.html HTTP/1.1" 302 - http-bio-9101-exec-1 418
+0:0:0:0:0:0:0:1 - - [08/May/2019:11:44:55 +0800] "GET /login.html HTTP/1.1" 304 - http-bio-9101-exec-3 63
+0:0:0:0:0:0:0:1 - - [08/May/2019:11:44:55 +0800] "GET /js/plugins/jquery/jquery.min.map HTTP/1.1" 404 1015 http-bio-9101-exec-4 29
+0:0:0:0:0:0:0:1 - - [08/May/2019:11:44:55 +0800] "GET /assets/img/favicon.ico HTTP/1.1" 302 - http-bio-9101-exec-5 10
+0:0:0:0:0:0:0:1 - - [08/May/2019:11:45:00 +0800] "POST /login HTTP/1.1" 302 - http-bio-9101-exec-6 29
+0:0:0:0:0:0:0:1 - - [08/May/2019:11:45:00 +0800] "GET /admin/index.html HTTP/1.1" 200 22604 http-bio-9101-exec-7 9
+0:0:0:0:0:0:0:1 - - [08/May/2019:11:45:00 +0800] "GET /plugins/jQueryUI/jquery-ui.min.js HTTP/1.1" 404 1017 http-bio-9101-exec-8 3
+0:0:0:0:0:0:0:1 - - [08/May/2019:11:45:00 +0800] "GET /admin/home.html HTTP/1.1" 200 4577 http-bio-9101-exec-9 6
+0:0:0:0:0:0:0:1 - - [08/May/2019:11:45:10 +0800] "GET /admin/goods.html HTTP/1.1" 200 5954 http-bio-9101-exec-1 6
+0:0:0:0:0:0:0:1 - - [08/May/2019:11:45:12 +0800] "GET /name.do HTTP/1.1" 200 19 http-bio-9101-exec-10 11541
+0:0:0:0:0:0:0:1 - - [08/May/2019:11:45:14 +0800] "POST /goods/search.do?page=1&rows=10 HTTP/1.1" 200 1314 http-bio-9101-exec-1 2699
+0:0:0:0:0:0:0:1 - - [08/May/2019:11:45:14 +0800] "GET /itemCat/findAll.do HTTP/1.1" 200 70247 http-bio-9101-exec-4 2705
+0:0:0:0:0:0:0:1 - - [08/May/2019:11:45:14 +0800] "POST /goods/search.do?page=1&rows=10 HTTP/1.1" 200 1314 http-bio-9101-exec-4 73
+0:0:0:0:0:0:0:1 - - [08/May/2019:11:45:27 +0800] "GET /goods/updateStatus.do?status=1&ids=149187842867977 HTTP/1.1" 200 47 http-bio-9101-exec-9 1369
+0:0:0:0:0:0:0:1 - - [08/May/2019:11:45:29 +0800] "POST /goods/search.do?page=1&rows=10 HTTP/1.1" 200 1102 http-bio-9101-exec-9 1160
+0:0:0:0:0:0:0:1 - - [08/May/2019:11:45:29 +0800] "POST /goods/search.do?page=1&rows=10 HTTP/1.1" 200 1102 http-bio-9101-exec-3 287

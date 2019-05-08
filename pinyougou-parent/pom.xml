@@ -31,6 +31,9 @@
         <module>freemarkerDemo</module>
         <module>pinyougou-page-interface</module>
         <module>pinyougou-page-service</module>
+        <module>jmsDemo</module>
+        <module>springjms-producer</module>
+        <module>springjms-consumer</module>
     </modules>
     <packaging>pom</packaging>
     <!-- 集中定义依赖版本号 -->

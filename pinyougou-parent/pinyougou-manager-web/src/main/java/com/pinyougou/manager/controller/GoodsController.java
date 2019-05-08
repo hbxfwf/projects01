@@ -2,10 +2,17 @@ package com.pinyougou.manager.controller;
 import java.util.Arrays;
 import java.util.List;
 
+import com.alibaba.fastjson.JSON;
 import com.pinyougou.group.Goods;
-import com.pinyougou.page.service.ItemPageService;
+
 import com.pinyougou.pojo.TbItem;
-import com.pinyougou.search.service.ItemSearchService;
+
+import org.apache.activemq.command.ActiveMQQueue;
+import org.apache.activemq.command.ActiveMQTopic;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.query.QueryUtils;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +22,9 @@ import com.pinyougou.sellergoods.service.GoodsService;
 
 import com.pinyougou.pojo.PageResult;
 import com.pinyougou.pojo.Result;
+
+import javax.jms.*;
+
 /**
  * controller
  * @author Administrator
@@ -26,10 +36,18 @@ public class GoodsController {
 
 	@Reference
 	private GoodsService goodsService;
-	@Reference
-	private ItemSearchService searchService;
-	@Reference
-	private ItemPageService pageService;
+	//@Reference
+	//private ItemSearchService searchService;
+	//@Reference
+	//private ItemPageService pageService;
+	@Autowired
+	private JmsTemplate jmsTemplate;
+	@Autowired
+	private Queue activeMQQueue;
+	@Autowired
+	private Queue activeMQQueue2;
+	@Autowired
+	private Topic activeMQTopic;
 	/**
 	 * 返回全部列表
 	 * @return
@@ -83,7 +101,7 @@ public class GoodsController {
 	//修改状态
 	//审核商品通过后，更新索引库
 	@RequestMapping("/updateStatus")
-	public Result updateStatus(String status,Long[] ids){
+	public Result updateStatus(String status, final Long[] ids){
 		try {
 			goodsService.updateStatus(status,ids);
 			if(status.equals("1")){		//代表审核通过
@@ -92,15 +110,33 @@ public class GoodsController {
 				System.out.println("tbItems:" + tbItems);
 				//将得到的列表导入到索引库中
 				if(tbItems.size() > 0){
-					searchService.importList(tbItems);
+					//searchService.importList(tbItems);
+					//使用activeMQ发送消息，内容就是当前的tbItems转换后的字符串
+					//① 将tbItems转换为字符串
+					final String jsonString = JSON.toJSONString(tbItems);
+					//② 将上面的sku商品列表信息发送出去，由searchService在后台监听得到，并更新索引库
+					jmsTemplate.send(activeMQQueue, new MessageCreator() {
+						@Override
+						public Message createMessage(Session session) throws JMSException {
+							return session.createTextMessage(jsonString);
+						}
+					});
+
 				}else{
 					System.out.println("没有明细数据");
 				}
 				//只要商品审核通过就可以生成静态页面
-				for (Long id : ids) {
-					genhtml(id);
-				}
-
+//				for (Long id : ids) {
+//					genhtml(id);
+//				}
+				//向生成静态页面的服务发送消息，有可能有多个服务来引用此服务，所以，使用发布/订阅模式较好
+				//此时在pageService服务中监听到发过来的id列表，然后，再生成静态页面
+				jmsTemplate.send(activeMQTopic, new MessageCreator() {
+					@Override
+					public Message createMessage(Session session) throws JMSException {
+						return session.createObjectMessage(ids);
+					}
+				});
 			}
 
 			return new Result(true, "修改状态成功");
@@ -125,11 +161,19 @@ public class GoodsController {
 	 * @return
 	 */
 	@RequestMapping("/delete")
-	public Result delete(Long [] ids){
+	public Result delete(final Long [] ids){
 		try {
 			goodsService.delete(ids);
 			//从索引库中删除商品
-			searchService.deleteGoodsId(Arrays.asList(ids));
+			//searchService.deleteGoodsId(Arrays.asList(ids));
+
+			//向后台（搜索服务）发送消息,然后，搜索服务就会从索引库中删除商品
+			jmsTemplate.send(activeMQQueue2, new MessageCreator() {
+				@Override
+				public Message createMessage(Session session) throws JMSException {
+					return session.createObjectMessage(ids);
+				}
+			});
 			return new Result(true, "删除成功"); 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -154,6 +198,6 @@ public class GoodsController {
 	 */
 	@RequestMapping("/genhtml")
 	public void genhtml(Long goodsId){
-		pageService.genItemHtml(goodsId);
+		//pageService.genItemHtml(goodsId);
 	}
 }

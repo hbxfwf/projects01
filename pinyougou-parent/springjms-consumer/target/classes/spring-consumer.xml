@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    <context:component-scan base-package="com.zelin.springjms"/>
+    <!--1.配置ActiveMQConnectionFactory对象-->
+    <bean id="targetConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL" value="tcp://192.168.25.4:61616"/>
+    </bean>
+    <!--2.配置spring包装后的ConnectionFactory对象-->
+    <bean id="connectionFactory" class="org.springframework.jms.connection.SingleConnectionFactory">
+        <constructor-arg ref="targetConnectionFactory"/>
+    </bean>
+    <!--3.配置点对点的目标对象-->
+    <bean id="activeMQQueue" class="org.apache.activemq.command.ActiveMQQueue">
+        <!--3.1)指定activeMQ目标对象的名称-->
+        <constructor-arg value="spring-queue"/>
+    </bean>
+    <!--配置发布/订阅的目标对象-->
+    <bean id="activeMQTopic" class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="spring-topic"/>
+    </bean>
+    <!--4.配置jms模板对象-->
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="connectionFactory"/>
+    </bean>
+
+    <!--5.定义DefaultMessageListenerContainer对象(用于点对点对象的容器)-->
+    <bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="connectionFactory"/>
+        <property name="destination" ref="activeMQQueue"/>
+        <property name="messageListener" ref="myMessageListener"/>
+    </bean>
+    <!--6.定义DefaultMessageListenerContainer对象(用于发布/订阅的容器)-->
+    <bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="connectionFactory"/>
+        <property name="destination" ref="activeMQTopic"/>
+        <property name="messageListener" ref="myMessageListener2"/>
+    </bean>
+</beans>

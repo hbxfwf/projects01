@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    <!--0.定义扫描包-->
+    <context:component-scan base-package="com.pinyougou.page.service"/>
+    <!--1.配置ActiveMQConnectionFactory-->
+    <bean id="targetConnectionFactrory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <constructor-arg value="tcp://192.168.25.4:61616"/>
+    </bean>
+    <!--2.配置spring包装后的connectionFactory对象-->
+    <bean id="connectionFactory" class="org.springframework.jms.connection.SingleConnectionFactory">
+        <property name="targetConnectionFactory" ref="targetConnectionFactrory"/>
+    </bean>
+    <!--3.定义目标对象（发布/订阅,用于生成静态页面）-->
+    <bean id="activeMQTopic" class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="spring-topic-page"/>
+    </bean>
+    <!--4.定义jmsTemplate对象-->
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="connectionFactory"/>
+    </bean>
+    <!--5.定义DefaultMessageListenerContainer容器(用于生成静态页面)-->
+    <bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="connectionFactory"/>
+        <property name="destination" ref="activeMQTopic"/>
+        <property name="messageListener" ref="myMessageListener"/>
+    </bean>
+
+</beans>

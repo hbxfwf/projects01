@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="fastDFSdemo" />
         <module name="freemarkerDemo" />
+        <module name="jmsDemo" />
         <module name="pinyougou-common" />
         <module name="pinyougou-content-interface" />
         <module name="pinyougou-content-service" />
@@ -27,6 +28,8 @@
         <module name="spring-security-demo" />
         <module name="SpringDataRedisDemo" />
         <module name="SpringDataSolrDemo" />
+        <module name="springjms-consumer" />
+        <module name="springjms-producer" />
       </profile>
     </annotationProcessing>
   </component>

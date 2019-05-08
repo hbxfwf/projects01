@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--1.配置ActiveMQConnectionFactory-->
+    <bean id="targetConnectionFactrory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <constructor-arg value="tcp://192.168.25.4:61616"/>
+    </bean>
+    <!--2.配置spring包装后的connectionFactory对象-->
+    <bean id="connectionFactory" class="org.springframework.jms.connection.SingleConnectionFactory">
+        <property name="targetConnectionFactory" ref="targetConnectionFactrory"/>
+    </bean>
+    <!--3.定义目标对象（点对点,用于审核商品）-->
+    <bean id="activeMQQueue" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg value="spring-queue"/>
+    </bean>
+    <!--4.定义目标对象(点对点，用于删除商品)-->
+    <bean id="activeMQQueue2" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg value="spring-queue-delete"/>
+    </bean>
+    <!--5.定义目标对象（发布/订阅,用于生成静态页面）-->
+    <bean id="activeMQTopic" class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="spring-topic-page"/>
+    </bean>
+    <!--6.定义jmsTemplate对象-->
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="connectionFactory"/>
+    </bean>
+</beans>
