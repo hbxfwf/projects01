@@ -1,4 +1,4 @@
-app.controller("contentController",function ($scope,$controller,contentService) {
+app.controller("userController",function ($scope,$controller,contentService) {
     $controller("baseController",{$scope:$scope});
     //0.将所有的分类的广告都放在下面定义的数组中
     $scope.contentList=[];

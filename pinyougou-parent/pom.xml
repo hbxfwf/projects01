@@ -34,6 +34,10 @@
         <module>jmsDemo</module>
         <module>springjms-producer</module>
         <module>springjms-consumer</module>
+        <module>springboot-jms</module>
+        <module>pinyougou-user-interface</module>
+        <module>pinyougou-user-service</module>
+        <module>pinyougou-user-web</module>
     </modules>
     <packaging>pom</packaging>
     <!-- 集中定义依赖版本号 -->

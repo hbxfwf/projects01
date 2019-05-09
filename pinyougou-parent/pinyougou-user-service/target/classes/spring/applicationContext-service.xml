@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <!--1.下面的端口号代表此服务对外发布时使用的端口号，这样在zookeeper中才不会与其它服务冲突-->
+    <dubbo:protocol name="dubbo" port="20886"/>
+    <!--2.下面的地址端口代表，此服务访问zookeeper服务器时使用的端口-->
+    <dubbo:registry address="zookeeper://192.168.25.4:2181"/>
+    <!--3.指定应用程序服务的名称-->
+    <dubbo:application name="pinyougou-user-service"/>
+    <!--4.指定spring容器将要扫描的包，把这些包下的服务都放到zookeeper注册中心这个服务器上-->
+    <dubbo:annotation package="com.pinyougou.user.service"/>
+</beans>
