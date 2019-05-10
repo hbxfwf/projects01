@@ -6,6 +6,8 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="cas-demo1" />
+        <module name="cas-demo2" />
         <module name="fastDFSdemo" />
         <module name="freemarkerDemo" />
         <module name="jmsDemo" />
@@ -34,6 +36,7 @@
         <module name="SpringDataSolrDemo" />
         <module name="springjms-consumer" />
         <module name="springjms-producer" />
+        <module name="springSecurity-CAS1" />
       </profile>
     </annotationProcessing>
   </component>

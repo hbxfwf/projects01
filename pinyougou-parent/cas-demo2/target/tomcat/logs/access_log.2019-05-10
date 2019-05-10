@@ -1,0 +1,5 @@
+0:0:0:0:0:0:0:1 - - [10/May/2019:09:55:45 +0800] "GET / HTTP/1.1" 302 - http-bio-9002-exec-1 239
+0:0:0:0:0:0:0:1 - - [10/May/2019:09:58:41 +0800] "GET / HTTP/1.1" 302 - http-bio-9002-exec-4 10
+0:0:0:0:0:0:0:1 - - [10/May/2019:09:58:42 +0800] "GET /?ticket=ST-2-dalUd75hOQgV3AtG7OYj-cas01.example.org HTTP/1.1" 302 - http-bio-9002-exec-6 410
+0:0:0:0:0:0:0:1 - - [10/May/2019:09:58:42 +0800] "GET / HTTP/1.1" 200 126 http-bio-9002-exec-7 34
+0:0:0:0:0:0:0:1 - - [10/May/2019:09:58:42 +0800] "GET /favicon.ico HTTP/1.1" 404 973 http-bio-9002-exec-8 18

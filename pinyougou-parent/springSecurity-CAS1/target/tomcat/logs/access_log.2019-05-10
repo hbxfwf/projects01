@@ -1,0 +1,6 @@
+0:0:0:0:0:0:0:1 - - [10/May/2019:11:07:07 +0800] "GET / HTTP/1.1" 302 - http-bio-9003-exec-1 318
+0:0:0:0:0:0:0:1 - - [10/May/2019:11:07:16 +0800] "GET /login/cas?ticket=ST-1-Oh6lmkSd4WK9viAcZ9vY-cas01.example.org HTTP/1.1" 302 - http-bio-9003-exec-3 390
+0:0:0:0:0:0:0:1 - - [10/May/2019:11:07:17 +0800] "GET / HTTP/1.1" 200 309 http-bio-9003-exec-4 1756
+0:0:0:0:0:0:0:1 - - [10/May/2019:11:07:17 +0800] "GET /favicon.ico HTTP/1.1" 404 973 http-bio-9003-exec-5 9
+0:0:0:0:0:0:0:1 - - [10/May/2019:11:07:20 +0800] "GET /logout/cas HTTP/1.1" 302 - http-bio-9003-exec-6 9
+127.0.0.1 - - [10/May/2019:11:07:20 +0800] "POST /login/cas HTTP/1.1" 200 - http-bio-9003-exec-9 21
