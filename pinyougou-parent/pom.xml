@@ -41,6 +41,9 @@
         <module>cas-demo1</module>
         <module>cas-demo2</module>
         <module>springSecurity-CAS1</module>
+        <module>pinyougou-cart-interface</module>
+        <module>pinyougou-cart-service</module>
+        <module>pinyougou-cart-web</module>
     </modules>
     <packaging>pom</packaging>
     <!-- 集中定义依赖版本号 -->

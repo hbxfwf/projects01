@@ -80,6 +80,7 @@ com\pinyougou\pojo\TbAddress.class
 com\pinyougou\pojo\TbGoods.class
 com\pinyougou\pojo\TbOrderExample$GeneratedCriteria.class
 com\pinyougou\pojo\TbTypeTemplateExample$GeneratedCriteria.class
+com\pinyougou\group\Cart.class
 com\pinyougou\pojo\TbBrandExample$GeneratedCriteria.class
 com\pinyougou\pojo\TbSpecificationOptionExample$Criterion.class
 com\pinyougou\pojo\TbOrderExample$Criteria.class
