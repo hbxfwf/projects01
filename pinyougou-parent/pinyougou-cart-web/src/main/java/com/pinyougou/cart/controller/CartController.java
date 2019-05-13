@@ -9,6 +9,7 @@ import com.pinyougou.utils.CookieUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -74,8 +75,18 @@ public class CartController {
      * @return
      */
     @RequestMapping("/addGoodsToCartList")
+    //下面这句注解代替了response.setHeader("Access-Control-Allow-Origin","http://localhost:9105");和
+    //response.setHeader("Access-Control-Allow-Credentials","true");其中的参数allowCredentials = "true"
+    //可以省略，因为基默认值就是true
+    //服务端处理跨域的第二种方案：(经常使用)
+    @CrossOrigin(origins = "http://localhost:9105",allowCredentials = "true")
     public Result addGoodsToCartList(Long itemId,int num){
         try {
+            //服务端处理跨域的第一种方案：
+            //设置可以允许9105服务器来访问它
+            //response.setHeader("Access-Control-Allow-Origin","http://localhost:9105");
+            //服务器端同意发送cookie及http认证信息
+            //response.setHeader("Access-Control-Allow-Credentials","true");
             //1.将购物车列表查询出来
             List<Cart> cartList = findCartList();
             System.out.println("cartList:" + cartList);

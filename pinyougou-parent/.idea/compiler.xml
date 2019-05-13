@@ -19,8 +19,11 @@
         <module name="pinyougou-content-service" />
         <module name="pinyougou-dao" />
         <module name="pinyougou-manager-web" />
+        <module name="pinyougou-order-interface" />
+        <module name="pinyougou-order-service" />
         <module name="pinyougou-page-interface" />
         <module name="pinyougou-page-service" />
+        <module name="pinyougou-page-web" />
         <module name="pinyougou-pojo" />
         <module name="pinyougou-portal-web" />
         <module name="pinyougou-search-interface" />
@@ -42,6 +45,9 @@
         <module name="springSecurity-CAS1" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="pinyougouorderinterface" target="1.7" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
