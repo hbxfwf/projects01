@@ -43,6 +43,10 @@
             </bean>
         </property>
     </bean>
+    <bean id="idWorker" class="com.pinyougou.utils.IdWorker">
+        <constructor-arg index="0" value="0"/>
+        <constructor-arg index="1" value="0"/>
+    </bean>
     <!-- 引用dubbo 服务 -->
     <dubbo:application name="pinyougou-cart-web" />
     <dubbo:registry address="zookeeper://192.168.25.4:2181"/>
