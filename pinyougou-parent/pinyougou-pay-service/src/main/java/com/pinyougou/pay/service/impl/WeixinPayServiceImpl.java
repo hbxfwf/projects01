@@ -29,6 +29,8 @@ public class WeixinPayServiceImpl implements WeixinPayService {
     private String orderUrl = "https://api.mch.weixin.qq.com/pay/unifiedorder";
     //微信后台查询订单的url
     private String queryUrl = "https://api.mch.weixin.qq.com/pay/orderquery";
+    //微信后台关闭订单的url
+    private String closeUrl = "https://api.mch.weixin.qq.com/pay/closeorder";
     //微信支付下单
     @Override
     public Map createNative(String out_trade_no, String total_fee) {
@@ -94,6 +96,43 @@ public class WeixinPayServiceImpl implements WeixinPayService {
 
             //2.构造HttpClient对象并发送数据
             HttpClient httpClient = new HttpClient(queryUrl);   //参数为下单地址
+            httpClient.setHttps(true);                          //设置发送的请求方式为http
+            httpClient.setXmlParam(paramsXml);                  //设置发送的xml参数
+            httpClient.post();                                  //发送请求和微信的后台
+
+            //3.接受返回的结果并返回
+            String contentXml = httpClient.getContent();                    //返回一个xml结果
+            Map<String, String> resultMap = WXPayUtil.xmlToMap(contentXml); //将xml数据转换为map
+
+            return resultMap;
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 关闭订单
+     * @param out_trade_no
+     * @return
+     */
+    @Override
+    public Map closePay(String out_trade_no) {
+        try {
+            //1.构造要发送的参数对象
+            Map<String,String> params = new HashMap<>();
+            params.put("appid",appid);                //公众账号ID
+            params.put("mch_id",partner);             //商户号
+            params.put("nonce_str", WXPayUtil.generateNonceStr()); //生成随机字符串
+            params.put("sign","品优购");               //签名
+            params.put("out_trade_no",out_trade_no);   //商户订单号
+            //1.1）根据上面的参数和商户的密钥生成一个xml数据
+            String paramsXml = WXPayUtil.generateSignature(params, partnerkey);
+
+            //2.构造HttpClient对象并发送数据
+            HttpClient httpClient = new HttpClient(closeUrl);   //参数为关单地址
             httpClient.setHttps(true);                          //设置发送的请求方式为http
             httpClient.setXmlParam(paramsXml);                  //设置发送的xml参数
             httpClient.post();                                  //发送请求和微信的后台
