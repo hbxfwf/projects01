@@ -4,7 +4,11 @@
        xmlns:solr="http://www.springframework.org/schema/data/solr"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/data/solr http://www.springframework.org/schema/data/solr/spring-solr.xsd">
     <!--1.定义solr服务器的地址-->
-    <solr:solr-server url="http://localhost:8080/solr" id="solrServer"/>
+    <!--<solr:solr-server url="http://localhost:8080/solr" id="solrServer"/>-->
+    <!--使用solrCloud集群服务器-->
+    <bean id="solrServer" class="org.apache.solr.client.solrj.impl.CloudSolrServer">
+        <constructor-arg value="192.168.25.4:2181,192.168.25.4:2182,192.168.25.4:2183"/>
+    </bean>
     <!--2.定义solrTemplate模板-->
     <bean id="solrTemplate" class="org.springframework.data.solr.core.SolrTemplate">
         <constructor-arg name="solrServer" ref="solrServer"/>

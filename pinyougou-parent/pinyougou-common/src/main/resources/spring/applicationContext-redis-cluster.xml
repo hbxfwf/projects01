@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    <!--下面配置redis集群-->
+    <!-- 加载配置属性文件 -->
+    <context:property-placeholder ignore-unresolvable="true" location="classpath:properties/redis-cluster-config.properties" />
+    <bean id="redisClusterConfiguration" class="org.springframework.data.redis.connection.RedisClusterConfiguration">
+        <property name="maxRedirects" value="${redis.maxRedirects}"/>
+        <property name="clusterNodes">
+            <list>
+                <!--1、配置第一个集群节点-->
+                <bean class="org.springframework.data.redis.connection.RedisClusterNode">
+                   <constructor-arg name="host" value="${redis.host1}"/>
+                    <constructor-arg name="port" value="${redis.port1}"/>
+                </bean>
+                <!--2、配置第二个集群节点-->
+                <bean class="org.springframework.data.redis.connection.RedisClusterNode">
+                    <constructor-arg name="host" value="${redis.host2}"/>
+                    <constructor-arg name="port" value="${redis.port2}"/>
+                </bean>
+                <!--3、配置第三个集群节点-->
+                <bean class="org.springframework.data.redis.connection.RedisClusterNode">
+                    <constructor-arg name="host" value="${redis.host3}"/>
+                    <constructor-arg name="port" value="${redis.port3}"/>
+                </bean>
+                <!--4、配置第四个集群节点-->
+                <bean class="org.springframework.data.redis.connection.RedisClusterNode">
+                    <constructor-arg name="host" value="${redis.host4}"/>
+                    <constructor-arg name="port" value="${redis.port4}"/>
+                </bean>
+                <!--5、配置第五个集群节点-->
+                <bean class="org.springframework.data.redis.connection.RedisClusterNode">
+                    <constructor-arg name="host" value="${redis.host5}"/>
+                    <constructor-arg name="port" value="${redis.port5}"/>
+                </bean>
+                <!--6、配置第六个集群节点-->
+                <bean class="org.springframework.data.redis.connection.RedisClusterNode">
+                    <constructor-arg name="host" value="${redis.host6}"/>
+                    <constructor-arg name="port" value="${redis.port6}"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+</beans>
